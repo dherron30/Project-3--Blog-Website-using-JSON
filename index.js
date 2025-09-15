@@ -1,11 +1,16 @@
 import express from "express";
 import bodyParser from "body-parser";
+import cors from "cors";
 
 const app = express();
 const port = 4000;
 
-app.use(express.static("public"));
 
+//  Middleware
+app.use(cors());
+app.use(express.static("public"));
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }));
 
 //In-memory data store
 let posts = [
@@ -48,36 +53,36 @@ let posts = [
 
 let lastId = 4;
 
-//Middleware
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({extended: true}));
-
-//GET All posts
-app.get("/posts", (req,res) => {
-    console.log(posts);
-    res.json(posts);
+// New root for root
+app.get("/", (req, res) => {
+  res.redirect("/posts");
+  // or: res.json({ message: "Welcome to API", endpoints: ["/posts", "/posts/:id"] });
 });
 
-//GET a specific post by id
-app.get("/posts/:id", (req,res) => {
-  const post = posts.find((p) => p.id === parseInt(req.params.id));
-  if (!post) return res.status(404).json({ message: "Post not found"});
+// GET all posts
+app.get("/posts", (req, res) => {
+  res.json(posts);
+});
+
+// GET specific post
+app.get("/posts/:id", (req, res) => {
+  const post = posts.find(p => p.id === parseInt(req.params.id));
+  if (!post) return res.status(404).json({ message: "Post not found" });
   res.json(post);
 });
 
-//POST a new post
+// POST new
 app.post("/posts", (req, res) => {
-    const newId = lastId += 1;
-    const post = {
-        id: newId,
-        title: req.body.title,
-        content: req.body.content,
-        author: req.body.author,
-        date: new Date(),
-    };
-    lastId = newId;
-    posts.push(post);
-    res.status(201).json(post);
+  const newId = ++lastId;
+  const post = {
+    id: newId,
+    title: req.body.title,
+    content: req.body.content,
+    author: req.body.author,
+    date: new Date(), // you might format this
+  };
+  posts.push(post);
+  res.status(201).json(post);
 });
 
 //PATCH a post when you just want to update one section e.g.title
@@ -95,7 +100,8 @@ app.patch("/posts/:id", (req, res) => {
 //DELETE a specific post by providing the post id.
 app.delete("/posts/:id", (req,res) =>{
     const index = posts.findIndex((p) => p.id === parseInt(req.params.id));
-    if(index === -1) return res.status(404).json({message: "Post not found"});
+    if(index === -1) 
+        return res.status(404).json({message: "Post not found"});
 
     posts.splice(index, 1);
     res.json({message: "Success: Post has been deleted!"});
