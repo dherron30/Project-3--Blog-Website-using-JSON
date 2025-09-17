@@ -16,6 +16,11 @@ app.use(cors());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
+// Health check
+app.get("/", (req, res) => {
+  res.json({ message: "Backend API is working", endpoints: ["/posts", "/posts/:id"] });
+});
+
 // Sample data (in-memory)
 let posts = [
   {
@@ -28,10 +33,6 @@ let posts = [
 ];
 let lastId = posts.length;
 
-// Health check
-app.get("/health", (req, res) => {
-  res.status(200).send("Backend is healthy 🚀");
-});
 
 // Get all posts
 app.get("/posts", (req, res) => {
@@ -81,5 +82,5 @@ app.delete("/posts/:id", (req, res) => {
 
 // Start server
 app.listen(port, host, () => {
-  console.log(`Backend API running on port ${port}`);
+  console.log(`Backend API running at http://${host}:${port}`);
 });
