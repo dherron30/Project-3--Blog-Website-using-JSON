@@ -33,6 +33,13 @@ let posts = [
 ];
 let lastId = posts.length;
 
+//  Home route to confirm backend is working
+app.get('/', (req, res) => {
+  res.json({
+    message: 'Backend API is working',
+    endpoints: ['/posts']
+  });
+});
 
 // Get all posts
 app.get("/posts", (req, res) => {
